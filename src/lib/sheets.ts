@@ -76,3 +76,24 @@ export const getApps = unstable_cache(fetchActiveApps, ["portal-q-apps"], {
   revalidate: 300,
   tags: ["apps"],
 });
+
+async function fetchAdminPasswordHash(): Promise<string> {
+  const data = await callSheetsApi<{ value: string }>("getConfig", {
+    key: "admin_password_hash",
+  });
+  return data.value;
+}
+
+/**
+ * Hash da senha de administrador, como está na aba `config`.
+ *
+ * Cacheado de propósito: cada tentativa de login leria a planilha, então uma
+ * rajada de tentativas erradas gastaria a cota diária do Apps Script. Com o
+ * cache, a rajada custa uma leitura por minuto. A troca de senha (Etapa 11)
+ * deve invalidar a tag `admin-config` para não continuar aceitando a antiga.
+ */
+export const getAdminPasswordHash = unstable_cache(
+  fetchAdminPasswordHash,
+  ["portal-q-admin-password-hash"],
+  { revalidate: 60, tags: ["admin-config"] }
+);

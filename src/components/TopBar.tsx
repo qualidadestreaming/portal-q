@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { LayoutGrid, ShieldUser } from "lucide-react";
+import { LayoutGrid } from "lucide-react";
 import { SearchInput } from "@/components/SearchInput";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LocaleSelector } from "@/components/LocaleSelector";
+import { AdminButton } from "@/components/AdminButton";
 
 export function TopBar() {
   return (
@@ -25,14 +26,7 @@ export function TopBar() {
 
           <LocaleSelector />
 
-          <button
-            type="button"
-            title="Entrar como administrador — disponível na Etapa 8"
-            className="ml-1 flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-sm text-text-muted transition-colors hover:bg-surface-hover hover:text-text"
-          >
-            <ShieldUser className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
-            <span className="hidden sm:inline">Administrador</span>
-          </button>
+          <AdminButton />
         </nav>
       </div>
     </header>

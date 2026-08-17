@@ -1,50 +1,80 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import type { Locale } from "@/lib/i18n";
+import {
+  createContext,
+  useContext,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
+import {
+  DEFAULT_LOCALE,
+  LOCALE_STORAGE_KEY,
+  translations,
+  type Locale,
+  type TranslationKey,
+} from "@/lib/i18n";
 
-const LOCALE_STORAGE_KEY = "portal-q-locale";
+/**
+ * O idioma escolhido mora no localStorage, que é um store externo ao React —
+ * então quem lê é `useSyncExternalStore`, e não um efeito que chama setState.
+ * Além de ser o padrão recomendado, sai de graça a sincronia entre abas.
+ *
+ * `getServerSnapshot` devolve DEFAULT_LOCALE: é o que o HTML do servidor
+ * mostra e o que a hidratação espera. Quem tem "en" salvo vê a troca logo
+ * depois de hidratar, sem aviso de divergência.
+ */
 
-interface LocaleContextType {
-  locale: Locale;
-  setLocale: (locale: Locale) => void;
-  t: (key: string) => string;
+const listeners = new Set<() => void>();
+
+function subscribe(onChange: () => void) {
+  listeners.add(onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    listeners.delete(onChange);
+    window.removeEventListener("storage", onChange);
+  };
 }
 
-const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
+function getSnapshot(): Locale {
+  try {
+    const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
+    return stored === "pt" || stored === "en" ? stored : DEFAULT_LOCALE;
+  } catch {
+    return DEFAULT_LOCALE;
+  }
+}
+
+function getServerSnapshot(): Locale {
+  return DEFAULT_LOCALE;
+}
+
+function writeLocale(next: Locale) {
+  try {
+    localStorage.setItem(LOCALE_STORAGE_KEY, next);
+  } catch {
+    // localStorage indisponível (ex.: navegação privada) — só não persiste.
+  }
+  // O evento `storage` não dispara na aba que escreveu; avisamos à mão.
+  for (const listener of listeners) listener();
+}
+
+type LocaleContextValue = {
+  locale: Locale;
+  setLocale: (locale: Locale) => void;
+  t: (key: TranslationKey) => string;
+};
+
+const LocaleContext = createContext<LocaleContextValue | null>(null);
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("pt");
-  const [mounted, setMounted] = useState(false);
+  const locale = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  useEffect(() => {
-    const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
-    if (stored === "pt" || stored === "en") {
-      setLocaleState(stored);
-    }
-    setMounted(true);
-  }, []);
-
-  function setLocale(newLocale: Locale) {
-    setLocaleState(newLocale);
-    try {
-      localStorage.setItem(LOCALE_STORAGE_KEY, newLocale);
-    } catch {
-      // localStorage indisponível — idioma só não persiste.
-    }
-  }
-
-  function t(key: string): string {
-    if (!mounted) return "";
-    try {
-      return (translations[locale] as Record<string, string>)[key] || key;
-    } catch {
-      return key;
-    }
+  function t(key: TranslationKey) {
+    return translations[locale][key];
   }
 
   return (
-    <LocaleContext.Provider value={{ locale, setLocale, t }}>
+    <LocaleContext.Provider value={{ locale, setLocale: writeLocale, t }}>
       {children}
     </LocaleContext.Provider>
   );
@@ -53,43 +83,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 export function useLocale() {
   const context = useContext(LocaleContext);
   if (!context) {
-    throw new Error("useLocale must be used within LocaleProvider");
+    throw new Error("useLocale precisa estar dentro de <LocaleProvider>");
   }
   return context;
 }
-
-// Import translations inline to avoid circular dependency.
-const translations = {
-  pt: {
-    searchPlaceholder: "Buscar aplicativo…",
-    searchLabel: "Buscar aplicativo",
-    searchClear: "Limpar busca",
-    themeToggle: "Alternar modo escuro",
-    languageLabel: "Idioma",
-    adminButton: "Administrador",
-    adminTitle: "Entrar como administrador — disponível na Etapa 8",
-    emptyTitle: "Nenhum aplicativo cadastrado ainda",
-    emptyDescription:
-      "Os cartões vão aparecer aqui assim que a camada de dados for conectada à planilha.",
-    errorTitle: "Não foi possível carregar os aplicativos",
-    errorDescription: "Tente recarregar a página em instantes.",
-    noResultsTitle: "Nenhum aplicativo encontrado",
-    noResultsDescription: "Tente buscar por outro termo.",
-  },
-  en: {
-    searchPlaceholder: "Search apps…",
-    searchLabel: "Search apps",
-    searchClear: "Clear search",
-    themeToggle: "Toggle dark mode",
-    languageLabel: "Language",
-    adminButton: "Administrator",
-    adminTitle: "Sign in as administrator — available in Step 8",
-    emptyTitle: "No apps registered yet",
-    emptyDescription:
-      "Cards will appear here once the data layer is connected to the spreadsheet.",
-    errorTitle: "Couldn't load the apps",
-    errorDescription: "Try reloading the page in a moment.",
-    noResultsTitle: "No apps found",
-    noResultsDescription: "Try a different search term.",
-  },
-} as const;

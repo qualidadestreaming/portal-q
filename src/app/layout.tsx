@@ -3,7 +3,9 @@ import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SearchProvider } from "@/components/SearchProvider";
 import { LocaleProvider } from "@/components/LocaleContext";
+import { AdminProvider } from "@/components/AdminProvider";
 import { TopBar } from "@/components/TopBar";
+import { isAdmin } from "@/lib/admin-auth";
 import { THEME_STORAGE_KEY } from "@/lib/theme";
 import "./globals.css";
 
@@ -36,7 +38,15 @@ const themeInitScript = `
 })();
 `;
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+// Ler o cookie de sessão aqui torna as rotas dinâmicas (ver a doc de
+// `cookies` em node_modules/next/dist/docs). É uma troca consciente: o
+// alternativo seria descobrir o modo admin no cliente, o que faria os
+// controles de edição piscarem na tela a cada carregamento. A cota do Apps
+// Script segue protegida — quem cacheia a leitura da planilha é
+// `unstable_cache` em getApps(), não o cache de rota.
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const admin = await isAdmin();
+
   return (
     <html
       lang="pt-BR"
@@ -47,12 +57,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Script id="theme-init" strategy="beforeInteractive">
           {themeInitScript}
         </Script>
-        <LocaleProvider>
-          <SearchProvider>
-            <TopBar />
-            {children}
-          </SearchProvider>
-        </LocaleProvider>
+        <AdminProvider isAdmin={admin}>
+          <LocaleProvider>
+            <SearchProvider>
+              <TopBar />
+              {children}
+            </SearchProvider>
+          </LocaleProvider>
+        </AdminProvider>
       </body>
     </html>
   );
