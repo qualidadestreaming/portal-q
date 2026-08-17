@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { LayoutGrid, Moon, Search, ShieldUser } from "lucide-react";
+import { LayoutGrid, Moon, ShieldUser } from "lucide-react";
+import { SearchInput } from "@/components/SearchInput";
 
 /**
  * Top bar fixa do Portal Q — único elemento de navegação do site (sem sidebar).
  *
- * Nesta etapa (3 — design system e layout) os controles abaixo são apenas
- * visuais: busca real (5), alternância de tema persistida (6), idioma (7) e
- * login de admin (8) são amarrados nas etapas seguintes do roadmap.
+ * A busca (etapa 5) já é funcional. Alternância de tema persistida (6),
+ * idioma (7) e login de admin (8) continuam só visuais até suas etapas.
  */
 export function TopBar() {
   return (
@@ -20,21 +20,7 @@ export function TopBar() {
           <span className="text-base font-semibold tracking-tight">Portal Q</span>
         </Link>
 
-        <div className="relative min-w-0 flex-1 max-w-md">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
-            strokeWidth={1.75}
-            aria-hidden="true"
-          />
-          <input
-            type="search"
-            placeholder="Buscar aplicativo…"
-            disabled
-            aria-label="Buscar aplicativo"
-            title="Disponível na Etapa 5"
-            className="h-9 w-full rounded-md border border-border bg-bg pl-9 pr-3 text-sm text-text placeholder:text-text-muted disabled:cursor-not-allowed disabled:opacity-60"
-          />
-        </div>
+        <SearchInput />
 
         <nav className="ml-auto flex shrink-0 items-center gap-1.5">
           <button

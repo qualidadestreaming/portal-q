@@ -1,5 +1,7 @@
 import { AppCard } from "@/components/AppCard";
 import { EmptyState } from "@/components/EmptyState";
+import { NoResultsState } from "@/components/NoResultsState";
+import { SearchableGrid } from "@/components/SearchableGrid";
 import type { App } from "@/lib/sheets";
 
 export function AppGrid({ apps }: { apps: App[] }) {
@@ -8,10 +10,13 @@ export function AppGrid({ apps }: { apps: App[] }) {
   }
 
   return (
-    <div className="mx-auto grid w-full max-w-6xl grid-cols-2 gap-4 p-4 sm:grid-cols-3 md:grid-cols-4 md:p-6 lg:grid-cols-5">
+    <SearchableGrid
+      items={apps.map((app) => ({ id: app.id, name: app.name }))}
+      empty={<NoResultsState />}
+    >
       {apps.map((app) => (
         <AppCard key={app.id} app={app} />
       ))}
-    </div>
+    </SearchableGrid>
   );
 }
