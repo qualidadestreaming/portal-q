@@ -53,9 +53,13 @@ export async function loginAdmin(
   try {
     result = await checkAdminPassword(password);
   } catch (error) {
-    // Planilha fora do ar, cota estourada, segredo faltando: o detalhe fica
-    // no log do servidor, o usuário recebe uma mensagem genérica.
-    console.error("[portal-q] Falha ao verificar a senha de administrador:", error);
+    // Planilha fora do ar, cota estourada, rede caindo: o detalhe fica no log
+    // do servidor, o usuário recebe uma mensagem de "tente de novo" — que aqui
+    // é o conselho certo, porque a falha costuma ser passageira.
+    console.error(
+      "[portal-q] login: falha ao ler ou verificar a senha na planilha (tentar de novo pode resolver):",
+      error
+    );
     return { error: "generic" };
   }
 
@@ -66,10 +70,26 @@ export async function loginAdmin(
     return { error: "wrong" };
   }
 
+  // Senha certa. Assinar a sessão é a última coisa que pode dar errado, e o
+  // motivo mais provável é PORTAL_Q_SESSION_SECRET ausente ou curto no
+  // ambiente. Isso merece um erro próprio: repetir não resolve, e dizer
+  // "tente de novo" mandaria o usuário para o lugar errado.
+  let sessionToken: string;
+  try {
+    sessionToken = createSessionToken();
+  } catch (error) {
+    console.error(
+      "[portal-q] login: senha correta, mas não foi possível assinar a sessão. " +
+        "Confira PORTAL_Q_SESSION_SECRET no ambiente do servidor:",
+      error
+    );
+    return { error: "misconfigured" };
+  }
+
   clearLoginAttempts(key);
   (await cookies()).set({
     name: SESSION_COOKIE,
-    value: createSessionToken(),
+    value: sessionToken,
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",

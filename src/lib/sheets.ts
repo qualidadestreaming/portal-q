@@ -1,5 +1,6 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
+import type { AppInput } from "@/lib/app-schema";
 
 /**
  * Camada de dados do Portal Q — fala com o Web App do Apps Script.
@@ -76,6 +77,21 @@ export const getApps = unstable_cache(fetchActiveApps, ["portal-q-apps"], {
   revalidate: 300,
   tags: ["apps"],
 });
+
+export async function createApp(input: AppInput): Promise<App> {
+  const data = await callSheetsApi<{ app: App }>("createApp", input);
+  return data.app;
+}
+
+export async function updateApp(id: string, input: AppInput): Promise<App> {
+  const data = await callSheetsApi<{ app: App }>("updateApp", { id, ...input });
+  return data.app;
+}
+
+export async function deleteApp(id: string): Promise<string> {
+  const data = await callSheetsApi<{ id: string }>("deleteApp", { id });
+  return data.id;
+}
 
 async function fetchAdminPasswordHash(): Promise<string> {
   const data = await callSheetsApi<{ value: string }>("getConfig", {
