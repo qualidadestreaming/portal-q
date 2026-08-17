@@ -2,13 +2,11 @@
 
 import { Moon, Sun } from "lucide-react";
 import { applyTheme, getEffectiveTheme } from "@/lib/theme";
+import { useLocale } from "@/components/LocaleContext";
 
-/**
- * A troca de ícone (sol/lua) é feita só por CSS (ver .theme-icon-* em
- * globals.css) — não há estado em React aqui, então não existe divergência
- * possível entre o que o servidor renderiza e o que o cliente mostra.
- */
 export function ThemeToggle() {
+  const { t } = useLocale();
+
   function handleClick() {
     const next = getEffectiveTheme() === "dark" ? "light" : "dark";
     applyTheme(next);
@@ -18,7 +16,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={handleClick}
-      aria-label="Alternar modo escuro"
+      aria-label={t("themeToggle")}
       className="flex h-9 w-9 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-hover hover:text-text"
     >
       <Moon

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SearchProvider } from "@/components/SearchProvider";
+import { LocaleProvider } from "@/components/LocaleContext";
 import { TopBar } from "@/components/TopBar";
 import { THEME_STORAGE_KEY } from "@/lib/theme";
 import "./globals.css";
@@ -46,10 +47,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Script id="theme-init" strategy="beforeInteractive">
           {themeInitScript}
         </Script>
-        <SearchProvider>
-          <TopBar />
-          {children}
-        </SearchProvider>
+        <LocaleProvider>
+          <SearchProvider>
+            <TopBar />
+            {children}
+          </SearchProvider>
+        </LocaleProvider>
       </body>
     </html>
   );
