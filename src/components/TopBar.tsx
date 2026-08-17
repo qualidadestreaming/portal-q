@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { LayoutGrid, Moon, ShieldUser } from "lucide-react";
+import { LayoutGrid, ShieldUser } from "lucide-react";
 import { SearchInput } from "@/components/SearchInput";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 /**
  * Top bar fixa do Portal Q — único elemento de navegação do site (sem sidebar).
  *
- * A busca (etapa 5) já é funcional. Alternância de tema persistida (6),
- * idioma (7) e login de admin (8) continuam só visuais até suas etapas.
+ * Busca (etapa 5) e modo escuro (etapa 6) já são funcionais. Idioma (7) e
+ * login de admin (8) continuam só visuais até suas etapas.
  */
 export function TopBar() {
   return (
@@ -23,14 +24,7 @@ export function TopBar() {
         <SearchInput />
 
         <nav className="ml-auto flex shrink-0 items-center gap-1.5">
-          <button
-            type="button"
-            title="Modo escuro — disponível na Etapa 6"
-            aria-label="Alternar modo escuro"
-            className="flex h-9 w-9 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-hover hover:text-text disabled:cursor-not-allowed"
-          >
-            <Moon className="h-[18px] w-[18px]" strokeWidth={1.75} aria-hidden="true" />
-          </button>
+          <ThemeToggle />
 
           <div
             role="group"

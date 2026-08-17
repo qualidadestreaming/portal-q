@@ -5,6 +5,10 @@
  * Paleta neutra (zinc), sem cores vivas — inspirada no siges-app e no
  * Hisense Ações. Um único tom de acento (indigo) é usado só em foco/seleção,
  * nunca como cor decorativa.
+ *
+ * Tema: segue o SO por padrão (prefers-color-scheme). O botão da TopBar
+ * grava uma preferência explícita em `data-theme` no <html> (Etapa 6), que
+ * tem prioridade sobre o SO nos dois sentidos.
  */
 :root {
   --bg: #ffffff;
@@ -17,7 +21,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #09090b;
     --surface: #18181b;
     --surface-hover: #27272a;
@@ -26,6 +30,16 @@
     --text-muted: #a1a1aa;
     --focus: #818cf8;
   }
+}
+
+:root[data-theme="dark"] {
+  --bg: #09090b;
+  --surface: #18181b;
+  --surface-hover: #27272a;
+  --border: #27272a;
+  --text: #fafafa;
+  --text-muted: #a1a1aa;
+  --focus: #818cf8;
 }
 
 @theme inline {
@@ -50,4 +64,31 @@ body {
 :focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
+}
+
+/*
+ * Ícone do botão de tema (Etapa 6): a troca sol/lua é só CSS, sem estado em
+ * React — evita qualquer divergência entre o HTML do servidor e o cliente.
+ */
+.theme-icon-sun {
+  display: none;
+}
+.theme-icon-moon {
+  display: inline-flex;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-icon-sun {
+    display: inline-flex;
+  }
+  :root:not([data-theme="light"]) .theme-icon-moon {
+    display: none;
+  }
+}
+
+:root[data-theme="dark"] .theme-icon-sun {
+  display: inline-flex;
+}
+:root[data-theme="dark"] .theme-icon-moon {
+  display: none;
 }
