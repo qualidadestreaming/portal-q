@@ -44,6 +44,8 @@ export const translations = {
       "A senha está certa, mas o servidor não conseguiu abrir a sessão. Avise quem administra o portal — repetir não resolve.",
 
     appAdd: "Adicionar aplicativo",
+    appMoveUp: "Mover para cima",
+    appMoveDown: "Mover para baixo",
     appEdit: "Editar",
     appEditTitle: "Editar aplicativo",
     appNewTitle: "Novo aplicativo",
@@ -110,6 +112,8 @@ export const translations = {
       "The password is right, but the server couldn't open the session. Tell whoever administers the portal — retrying won't help.",
 
     appAdd: "Add app",
+    appMoveUp: "Move up",
+    appMoveDown: "Move down",
     appEdit: "Edit",
     appEditTitle: "Edit app",
     appNewTitle: "New app",

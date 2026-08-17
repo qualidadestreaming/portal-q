@@ -2,9 +2,10 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { Pencil, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Pencil, Trash2 } from "lucide-react";
 import { useLocale } from "@/components/LocaleContext";
 import { AppFormDialog } from "@/components/AppFormDialog";
+import { useReorder } from "@/components/ReorderProvider";
 import { deleteAppAction, type AppFormState } from "@/lib/app-actions";
 import { APP_ERROR_KEYS } from "@/lib/i18n";
 import type { App } from "@/lib/sheets";
@@ -93,17 +94,39 @@ function DeleteDialog({
 }
 
 /**
- * Editar e remover, sobrepostos ao cartão. Ficam num contêiner próprio, fora
- * do <a> do cartão, senão clicar em "editar" também abriria o link.
+ * Setas, editar e remover, sobrepostos ao cartão. Ficam num contêiner
+ * próprio, fora do <a> do cartão, senão clicar em "editar" também abriria
+ * o link.
  */
 export function AppCardAdminControls({ app }: { app: App }) {
   const { t } = useLocale();
   const [editando, setEditando] = useState(false);
   const [removendo, setRemovendo] = useState(false);
+  const { moveApp, isFirst, isLast, pending } = useReorder();
 
   return (
     <>
       <div className="absolute right-2 top-2 flex gap-0.5">
+        <button
+          type="button"
+          onClick={() => moveApp(app.id, "up")}
+          disabled={pending || isFirst(app.id)}
+          title={t("appMoveUp")}
+          aria-label={`${t("appMoveUp")} — ${app.name}`}
+          className="flex h-7 w-7 items-center justify-center rounded border border-border bg-surface text-text-muted transition-colors hover:bg-surface-hover hover:text-text disabled:opacity-40 disabled:hover:bg-surface disabled:hover:text-text-muted"
+        >
+          <ChevronUp className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          onClick={() => moveApp(app.id, "down")}
+          disabled={pending || isLast(app.id)}
+          title={t("appMoveDown")}
+          aria-label={`${t("appMoveDown")} — ${app.name}`}
+          className="flex h-7 w-7 items-center justify-center rounded border border-border bg-surface text-text-muted transition-colors hover:bg-surface-hover hover:text-text disabled:opacity-40 disabled:hover:bg-surface disabled:hover:text-text-muted"
+        >
+          <ChevronDown className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+        </button>
         <button
           type="button"
           onClick={() => setEditando(true)}

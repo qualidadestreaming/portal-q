@@ -2,7 +2,7 @@
 
 import { updateTag } from "next/cache";
 import { requireAdmin } from "@/lib/admin-auth";
-import { createApp, deleteApp, updateApp } from "@/lib/sheets";
+import { createApp, deleteApp, reorderApps, updateApp } from "@/lib/sheets";
 import { validateAppInput, type AppErrorCode } from "@/lib/app-schema";
 
 /**
@@ -69,6 +69,39 @@ export async function saveAppAction(
 
   updateTag("apps");
   return OK;
+}
+
+/** Teto de sanidade — bem acima de quantos apps um portal de links teria. */
+const MAX_REORDER_ITEMS = 500;
+
+/**
+ * Chamada direto por `onClick` (não por `<form>`), então `ids` é entrada não
+ * confiável como qualquer outra: quem manda a requisição decide o conteúdo.
+ * A validação de forma é feita aqui; se algum id não existir mais na
+ * planilha, é o Apps Script quem recusa (reorderApps_ lança "não encontrado").
+ */
+export async function reorderAppsAction(
+  ids: unknown
+): Promise<{ error: AppErrorCode | null }> {
+  if (
+    !Array.isArray(ids) ||
+    ids.length === 0 ||
+    ids.length > MAX_REORDER_ITEMS ||
+    !ids.every((id) => typeof id === "string" && id.length > 0)
+  ) {
+    return { error: "saveFailed" };
+  }
+
+  try {
+    await requireAdmin();
+    await reorderApps(ids);
+  } catch (error) {
+    console.error("[portal-q] falha ao reordenar aplicativos:", error);
+    return { error: classify(error) };
+  }
+
+  updateTag("apps");
+  return { error: null };
 }
 
 export async function deleteAppAction(

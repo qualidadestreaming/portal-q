@@ -93,6 +93,15 @@ export async function deleteApp(id: string): Promise<string> {
   return data.id;
 }
 
+/**
+ * Redefine a ordem de exibição. `ids` é a lista completa, na ordem desejada —
+ * o Apps Script grava 1..n nessa sequência (ver reorderApps_ em Code.gs).
+ */
+export async function reorderApps(ids: string[]): Promise<App[]> {
+  const data = await callSheetsApi<{ apps: App[] }>("reorderApps", { ids });
+  return data.apps;
+}
+
 async function fetchAdminPasswordHash(): Promise<string> {
   const data = await callSheetsApi<{ value: string }>("getConfig", {
     key: "admin_password_hash",
