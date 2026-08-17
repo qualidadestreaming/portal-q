@@ -1,7 +1,13 @@
+import { EmptyState } from "@/components/EmptyState";
+import { TopBar } from "@/components/TopBar";
+
 export default function Home() {
   return (
-    <main className="flex flex-1 items-center justify-center">
-      <p className="text-sm text-zinc-500">Portal Q — setup concluído.</p>
-    </main>
+    <>
+      <TopBar />
+      <main className="flex flex-1 flex-col">
+        <EmptyState />
+      </main>
+    </>
   );
 }

@@ -1,0 +1,71 @@
+import Link from "next/link";
+import { LayoutGrid, Moon, Search, ShieldUser } from "lucide-react";
+
+/**
+ * Top bar fixa do Portal Q — único elemento de navegação do site (sem sidebar).
+ *
+ * Nesta etapa (3 — design system e layout) os controles abaixo são apenas
+ * visuais: busca real (5), alternância de tema persistida (6), idioma (7) e
+ * login de admin (8) são amarrados nas etapas seguintes do roadmap.
+ */
+export function TopBar() {
+  return (
+    <header className="sticky top-0 z-40 border-b border-border bg-surface">
+      <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 md:gap-6 md:px-6">
+        <Link
+          href="/"
+          className="flex shrink-0 items-center gap-2 rounded-md py-1 text-text"
+        >
+          <LayoutGrid className="h-5 w-5 text-text-muted" strokeWidth={1.75} aria-hidden="true" />
+          <span className="text-base font-semibold tracking-tight">Portal Q</span>
+        </Link>
+
+        <div className="relative min-w-0 flex-1 max-w-md">
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
+            strokeWidth={1.75}
+            aria-hidden="true"
+          />
+          <input
+            type="search"
+            placeholder="Buscar aplicativo…"
+            disabled
+            aria-label="Buscar aplicativo"
+            title="Disponível na Etapa 5"
+            className="h-9 w-full rounded-md border border-border bg-bg pl-9 pr-3 text-sm text-text placeholder:text-text-muted disabled:cursor-not-allowed disabled:opacity-60"
+          />
+        </div>
+
+        <nav className="ml-auto flex shrink-0 items-center gap-1.5">
+          <button
+            type="button"
+            title="Modo escuro — disponível na Etapa 6"
+            aria-label="Alternar modo escuro"
+            className="flex h-9 w-9 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-hover hover:text-text disabled:cursor-not-allowed"
+          >
+            <Moon className="h-[18px] w-[18px]" strokeWidth={1.75} aria-hidden="true" />
+          </button>
+
+          <div
+            role="group"
+            aria-label="Idioma — disponível na Etapa 7"
+            title="Disponível na Etapa 7"
+            className="flex items-center rounded-md border border-border p-0.5 text-xs font-medium"
+          >
+            <span className="rounded px-2 py-1 bg-surface-hover text-text">PT</span>
+            <span className="rounded px-2 py-1 text-text-muted">EN</span>
+          </div>
+
+          <button
+            type="button"
+            title="Entrar como administrador — disponível na Etapa 8"
+            className="ml-1 flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-sm text-text-muted transition-colors hover:bg-surface-hover hover:text-text"
+          >
+            <ShieldUser className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+            <span className="hidden sm:inline">Administrador</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+  );
+}
