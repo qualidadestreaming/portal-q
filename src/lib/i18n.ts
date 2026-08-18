@@ -42,6 +42,20 @@ export const translations = {
     adminErrorGeneric: "Não foi possível entrar. Tente de novo em instantes.",
     adminErrorMisconfigured:
       "A senha está certa, mas o servidor não conseguiu abrir a sessão. Avise quem administra o portal — repetir não resolve.",
+    adminErrorTooShort: "A nova senha precisa ter pelo menos 8 caracteres.",
+    adminErrorMismatch: "A confirmação não bate com a nova senha.",
+    adminErrorSessionExpired: "Sua sessão de administrador expirou. Feche e entre de novo.",
+
+    changePasswordOpen: "Trocar senha",
+    changePasswordTitle: "Trocar senha de administrador",
+    changePasswordCurrent: "Senha atual",
+    changePasswordNew: "Nova senha",
+    changePasswordConfirm: "Confirmar nova senha",
+    changePasswordSubmit: "Trocar senha",
+    changePasswordSubmitting: "Trocando…",
+    changePasswordSuccess:
+      "Senha trocada. Use a nova senha no próximo login — esta sessão continua ativa.",
+    changePasswordClose: "Fechar",
 
     appAdd: "Adicionar aplicativo",
     appMoveUp: "Mover para cima",
@@ -110,6 +124,20 @@ export const translations = {
     adminErrorGeneric: "Couldn't sign in. Try again in a moment.",
     adminErrorMisconfigured:
       "The password is right, but the server couldn't open the session. Tell whoever administers the portal — retrying won't help.",
+    adminErrorTooShort: "The new password needs at least 8 characters.",
+    adminErrorMismatch: "The confirmation doesn't match the new password.",
+    adminErrorSessionExpired: "Your administrator session expired. Close this and sign in again.",
+
+    changePasswordOpen: "Change password",
+    changePasswordTitle: "Change administrator password",
+    changePasswordCurrent: "Current password",
+    changePasswordNew: "New password",
+    changePasswordConfirm: "Confirm new password",
+    changePasswordSubmit: "Change password",
+    changePasswordSubmitting: "Changing…",
+    changePasswordSuccess:
+      "Password changed. Use the new password next time you sign in — this session stays active.",
+    changePasswordClose: "Close",
 
     appAdd: "Add app",
     appMoveUp: "Move up",
@@ -164,6 +192,9 @@ export const ADMIN_ERROR_KEYS = {
   notConfigured: "adminErrorNotConfigured",
   generic: "adminErrorGeneric",
   misconfigured: "adminErrorMisconfigured",
+  tooShort: "adminErrorTooShort",
+  mismatch: "adminErrorMismatch",
+  sessionExpired: "adminErrorSessionExpired",
 } as const satisfies Record<string, TranslationKey>;
 
 export type AdminErrorCode = keyof typeof ADMIN_ERROR_KEYS;

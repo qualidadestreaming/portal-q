@@ -1,5 +1,5 @@
 import "server-only";
-import { createHmac, scryptSync, timingSafeEqual } from "node:crypto";
+import { createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { getAdminPasswordHash } from "@/lib/sheets";
 
@@ -19,6 +19,9 @@ export const SESSION_TTL_SECONDS = 8 * 60 * 60;
 
 /** Precisa bater com scripts/hash-password.mjs. */
 const SCRYPT = { N: 16384, r: 8, p: 1, keylen: 32 };
+
+/** Mesmo mínimo do prompt em scripts/hash-password.mjs. */
+export const MIN_PASSWORD_LENGTH = 8;
 
 function sessionSecret(): string {
   const secret = process.env.PORTAL_Q_SESSION_SECRET;
@@ -71,6 +74,22 @@ export function verifyPassword(password: string, storedHash: string): boolean {
     p: SCRYPT.p,
   });
   return timingSafeEqual(derived, expected);
+}
+
+/**
+ * Gera `scrypt$<salt-hex>$<hash-hex>` — mesmo formato de
+ * scripts/hash-password.mjs, mesmos parâmetros de `verifyPassword`. Usada
+ * pela troca de senha (Etapa 11); o script continua sendo o caminho de
+ * bootstrap/recuperação, para quando ainda não existe ninguém logado.
+ */
+export function hashPassword(password: string): string {
+  const salt = randomBytes(16);
+  const derived = scryptSync(password, salt, SCRYPT.keylen, {
+    N: SCRYPT.N,
+    r: SCRYPT.r,
+    p: SCRYPT.p,
+  });
+  return `scrypt$${salt.toString("hex")}$${derived.toString("hex")}`;
 }
 
 export type PasswordCheck = "ok" | "wrong" | "not-configured";

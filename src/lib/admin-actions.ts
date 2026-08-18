@@ -1,6 +1,6 @@
 "use server";
 
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import {
   SESSION_COOKIE,
@@ -13,6 +13,7 @@ import {
   isLoginLocked,
   registerFailedLogin,
 } from "@/lib/login-rate-limit";
+import { clientKey } from "@/lib/client-key";
 import type { AdminErrorCode } from "@/lib/i18n";
 
 /**
@@ -27,13 +28,6 @@ import type { AdminErrorCode } from "@/lib/i18n";
  */
 
 export type AdminLoginState = { error: AdminErrorCode | null };
-
-async function clientKey(): Promise<string> {
-  const headerList = await headers();
-  const forwarded = headerList.get("x-forwarded-for");
-  // Primeiro IP da cadeia é o cliente; o resto são proxies.
-  return forwarded?.split(",")[0]?.trim() || headerList.get("x-real-ip") || "desconhecido";
-}
 
 export async function loginAdmin(
   _prevState: AdminLoginState,

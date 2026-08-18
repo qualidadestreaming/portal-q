@@ -122,3 +122,8 @@ export const getAdminPasswordHash = unstable_cache(
   ["portal-q-admin-password-hash"],
   { revalidate: 60, tags: ["admin-config"] }
 );
+
+/** Grava o novo hash (Etapa 11). Quem chama precisa invalidar a tag `admin-config` depois. */
+export async function setAdminPasswordHash(hash: string): Promise<void> {
+  await callSheetsApi("setConfig", { key: "admin_password_hash", value: hash });
+}
