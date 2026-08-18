@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SearchProvider } from "@/components/SearchProvider";
@@ -38,15 +39,21 @@ const themeInitScript = `
 })();
 `;
 
-// Ler o cookie de sessão aqui torna as rotas dinâmicas (ver a doc de
-// `cookies` em node_modules/next/dist/docs). É uma troca consciente: o
-// alternativo seria descobrir o modo admin no cliente, o que faria os
-// controles de edição piscarem na tela a cada carregamento. A cota do Apps
-// Script segue protegida — quem cacheia a leitura da planilha é
-// `unstable_cache` em getApps(), não o cache de rota.
-export default async function RootLayout({ children }: LayoutProps<"/">) {
+/**
+ * Lê o cookie de sessão (torna a rota dinâmica — ver a doc de `cookies` em
+ * node_modules/next/dist/docs). Isolado num componente próprio, dentro do seu
+ * próprio <Suspense>, porque a doc de `loading.js` é explícita: acesso a dado
+ * de runtime (cookies/headers) direto no corpo do layout não é coberto pelo
+ * Suspense implícito do loading.tsx, que só envolve page.tsx — e isso
+ * bagunçava o streaming da página (dois <main> no HTML, um deles órfão,
+ * nunca trocado para o conteúdo real). Isolar aqui resolveu.
+ */
+async function AdminGate({ children }: { children: React.ReactNode }) {
   const admin = await isAdmin();
+  return <AdminProvider isAdmin={admin}>{children}</AdminProvider>;
+}
 
+export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="pt-BR"
@@ -57,14 +64,16 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <Script id="theme-init" strategy="beforeInteractive">
           {themeInitScript}
         </Script>
-        <AdminProvider isAdmin={admin}>
-          <LocaleProvider>
-            <SearchProvider>
-              <TopBar />
-              {children}
-            </SearchProvider>
-          </LocaleProvider>
-        </AdminProvider>
+        <Suspense fallback={null}>
+          <AdminGate>
+            <LocaleProvider>
+              <SearchProvider>
+                <TopBar />
+                {children}
+              </SearchProvider>
+            </LocaleProvider>
+          </AdminGate>
+        </Suspense>
       </body>
     </html>
   );
